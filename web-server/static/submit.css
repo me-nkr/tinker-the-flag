@@ -1,0 +1,29 @@
+.container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-width: 18rem;
+    gap: 1rem
+}
+
+.submit-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 0.5rem;
+    text-align: left;
+    margin-right: auto;
+}
+
+input {
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.error {
+    color: red;
+}

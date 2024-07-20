@@ -1,0 +1,22 @@
+$def with (started, player_count, flag_submission_count, error=None)
+
+$if started:
+    $var title: Game Stats
+$else:
+    $var title: Start Game
+
+$var loggedin: True
+$var admin: True
+$var css: static/admin.css
+
+<div class="container">
+    <h1>Welcome Gamemaster</h1>
+    <h2>Player Count: $player_count</h2>
+    <h2>Flags Submitted: $flag_submission_count</h2>
+    $if not started:
+        <form action="/admin" method="post">
+            <button type="submit" name="start" value="game">Start Game</button>
+        </form>
+        $if error:
+            <span class="error">$error</span>
+</div>

@@ -1,0 +1,71 @@
+import web, controllers.utils as utils
+
+class home:
+
+    def GET(self):
+        
+        state, db, render = web.ctx.gctx
+        error = ""
+        clue_data = ""
+        
+        auth = utils.userauth(web, db, render, state, home=True)
+        if not auth["status"]:
+            return auth["data"]
+        else:
+            register_id, player_name = auth["data"]
+
+        print(web.ctx.gctx[0].started)
+        
+        if state.started:
+            try:
+                with open("images/" + register_id + ".pbm", "r") as clue:
+                    clue_data = clue.read()
+            except FileNotFoundError:
+                error = "error 0xf0, please contact the organizer"
+
+        return render.home(error, "registered", state.started, clue_data, register_id, player_name)
+
+
+    def POST(self):
+
+        state, db, render = web.ctx.gctx
+        error = ""
+
+        if web.ctx.env["CONTENT_TYPE"] != "application/x-www-form-urlencoded":
+            raise web.badrequest("Invalid request")
+        
+        register_id = web.cookies().get("register_id")
+        reg_in =  web.input().get("register_id")
+
+        register_id = reg_in if reg_in is not None else register_id
+        player_name = web.input().get("player_name")
+        
+        if register_id == "":
+            error = "empty registration id"
+            web.setcookie("register_id", None, expires=0)
+            return render.home(error, "new", state.started)
+        elif register_id is None:
+            raise web.seeother("/") 
+        
+        player_record = db.where("scoreboard", what="player_name", player_id=register_id).list()
+
+        if len(player_record) < 1:
+            if state.started:
+                error = "invalid registration id"
+                web.setcookie("register_id", None, expires=0)
+                return render.home(error, "new", state.started, register_id=register_id)
+            else:
+                db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None)
+
+        web.setcookie("register_id", register_id, httponly= True, samesite="Strict")
+        
+        if len(player_record) < 1 or not player_record[0].get("player_name"):
+            if player_name is None:
+                raise web.seeother("/")
+            elif player_name == "":
+                error = "name can't be empty"
+                return render.home(error, "onboard", state.started, register_id=register_id)
+            else:
+                db.update("scoreboard", vars={"reg_id": register_id}, where="player_id = $reg_id", player_name=player_name)
+
+        raise web.seeother("/")

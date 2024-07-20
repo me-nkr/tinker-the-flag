@@ -1,0 +1,6 @@
+cheroot==10.0.1
+jaraco.functools==4.0.1
+more-itertools==10.3.0
+netpbmfile==2024.5.24
+numpy==2.0.0
+web.py==0.62

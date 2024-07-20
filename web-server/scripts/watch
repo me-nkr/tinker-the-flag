@@ -1,0 +1,17 @@
+#!/bin/sh
+
+sigint_handler()
+{
+  kill $PID
+  exit
+}
+
+trap sigint_handler INT
+
+while true; do
+  $@ &
+  PID=$!
+  inotifywait -e modify -e move -e create -e delete --exclude "scripts\/watch|__pycache__|session|ttf\.db|ttf\.db\-journal|scripts\/initdb|images" -r `pwd`
+  kill $PID
+done
+

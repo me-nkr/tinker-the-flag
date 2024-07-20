@@ -1,0 +1,31 @@
+$def with (content)
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>$content.title</title>
+    <link rel="stylesheet" href="static/layout.css" type="text/css">
+    $if content.css:
+    $for file in content.css.split(", "):
+        <link rel="stylesheet" href="$file" type="text/css">
+</head>
+
+<body>
+    <div class="main">
+        $:content
+        $if content.loggedin == "True":
+            $if content.admin == "True":
+                <form action="http://log:out@$baseurl" method="get" class="logout">
+            $else:
+                <form action="/logout" method="get" class="logout">
+
+            <button type="submit">Logout</button>
+            </form>
+    </div>
+</body>
+
+</html>

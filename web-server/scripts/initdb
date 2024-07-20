@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import sqlite3
+
+# create db
+db = sqlite3.connect("ttf.db").cursor()
+
+# create table
+db.execute("CREATE TABLE scoreboard(player_id, player_name, time, partner_id, flag)")
+
+print("Database Ready")

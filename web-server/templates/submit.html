@@ -1,0 +1,35 @@
+$def with (error=None, status=None, partner_id=None, username=None, password=None, flag=None, player_name=None)
+
+$if status:
+    $var title: Congrats 
+$else:
+    $var title: Submit flag
+    
+$var loggedin: True
+$var admin: False
+$var css: static/submit.css
+
+$if status:
+    <div class="container">
+        <h2>Congratulations $player_name &#127882;</h2>
+        <h3>You sucessfully submitted the flag</h3>
+    </div>
+    
+$else:
+    <div class="container">
+        <h1>Hello $player_name</h1>
+        <form action="/submit" method="post" class="submit-form">
+            <label for="partner_id">Your Partner's Tinkerhub Membership ID</label>
+            <input type="text" name="partner_id" id="partner_id" placeholder="eg: J2Y7X39TRE" value="$partner_id">
+            <label for="username">Your SSH Username</label>
+            <input type="text" name="username" id="username" placeholder="eg: 4b9d0" value="$username">
+            <label for="password">Your SSH Password</label>
+            <input type="password" name="password" id="password" placeholder="********" value="$password">
+            <label for="flag">Your TTF Flag</label>
+            <input type="text" name="flag" id="flag" placeholder="eg: a790f6090d00c07c" value="$flag">
+            <button type="submit">Submit Flag</button>
+            
+            $if error:
+                <span class="error">$error</span>
+        </form>
+    </div>

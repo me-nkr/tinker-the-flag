@@ -1,0 +1,73 @@
+$def with (error=None, status=None, started=None, clue_data=None, register_id=None, player_name=None)
+
+$if not status != "registered":
+    $var title: Register for TTF
+$elif not started:
+    $var title: Waiting
+$else:
+    $var title: Tinker The Flag
+    
+$if status == "registered":
+    $var loggedin: True
+$else:
+    $var loggedin: False
+
+$var admin: False
+$var css: static/home.css
+
+$if status != "registered":
+    <div class="container">
+        <form action="/" method="post" class="register-form">
+            $if status == "new":
+                <label for="register_id">Your Tinkerhub Membership ID</label>
+                <input type="text" name="register_id" id="register_id" placeholder="eg: J2Y7X39TRE" value="$register_id">
+            
+                $if not started:
+                    <button type="submit">Register / Login</button>
+                $else:
+                    <button type="submit">Login</button>
+            $elif status == "onboard":
+                <div class="name-label-container">
+                    <label for="player_name">Your Display Name</label>
+                    <span class="name-warning">(you can't change it later)</span>
+                </div>
+                <input type="text" name="player_name" id="player_name" placeholder="eg: Robin Doe" value="$player_name">
+
+                <button type="submit">Register</button>
+            $if error:
+                <span class="error">$error</span>
+        </form>
+    </div>
+$elif not started:
+    <div class="container">
+        <h1>Hello $player_name</h1>
+        <h2>Please wait for the game to start</h2>
+    </div>
+$else:
+    <div class="container">
+        <h1>Hello $player_name</h1>
+        $if error:
+            <span class="error">$error</span>
+        $else:
+            <span id="imageData" style="display: none;">$clue_data</span>
+            <div>
+                <button
+                    type="button"
+                    onclick="(() => {
+                        const data = new Blob([document.getElementById('imageData').innerText], {
+                            type: 'image/pbm'
+                        });
+                        const download = document.createElement('a');
+                        const url = window.URL.createObjectURL(data);
+                        download.href = url;
+                        download.download = 'test.pbm';
+                        document.body.appendChild(download);
+                        download.click();
+                        document.body.removeChild(download);
+                        window.URL.revokeObjectURL(url);
+                    })()"
+                >Download Asset</button>
+                <a href="/submit"><button>Submit flag</button></a>
+            </div>
+            <span>Clue: Every pixel holds a story behind the gate that open only on disagreement</span>
+    </div>
