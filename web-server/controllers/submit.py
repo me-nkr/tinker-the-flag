@@ -4,9 +4,14 @@ class submit:
     
     def GET(self):
 
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
+
         
-        if not state.started:
+        if not state.get("started"):
             raise web.seeother("/")
         
         auth = utils.userauth(web, db, render, state)
@@ -25,7 +30,11 @@ class submit:
 
     def POST(self):
         
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
 
         error = ""
 

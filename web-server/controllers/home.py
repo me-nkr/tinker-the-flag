@@ -4,7 +4,12 @@ class home:
 
     def GET(self):
         
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+        
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
+
         error = ""
         clue_data = ""
         
@@ -16,19 +21,24 @@ class home:
 
         print(web.ctx.gctx[0].started)
         
-        if state.started:
+        if state.get("started"):
             try:
                 with open("images/" + register_id + ".pbm", "r") as clue:
                     clue_data = clue.read()
             except FileNotFoundError:
                 error = "error 0xf0, please contact the organizer"
 
-        return render.home(error, "registered", state.started, clue_data, register_id, player_name)
+        return render.home(error, "registered", state.get("started"), clue_data, register_id, player_name)
 
 
     def POST(self):
 
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
+
         error = ""
 
         if web.ctx.env["CONTENT_TYPE"] != "application/x-www-form-urlencoded":
@@ -43,17 +53,17 @@ class home:
         if register_id == "":
             error = "empty registration id"
             web.setcookie("register_id", None, expires=0)
-            return render.home(error, "new", state.started)
+            return render.home(error, "new", state.get("started"))
         elif register_id is None:
             raise web.seeother("/") 
         
         player_record = db.where("scoreboard", what="player_name", player_id=register_id).list()
 
         if len(player_record) < 1:
-            if state.started:
+            if state.get("started"):
                 error = "invalid registration id"
                 web.setcookie("register_id", None, expires=0)
-                return render.home(error, "new", state.started, register_id=register_id)
+                return render.home(error, "new", state.get("started"), register_id=register_id)
             else:
                 db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None)
 
@@ -64,7 +74,7 @@ class home:
                 raise web.seeother("/")
             elif player_name == "":
                 error = "name can't be empty"
-                return render.home(error, "onboard", state.started, register_id=register_id)
+                return render.home(error, "onboard", state.get("started"), register_id=register_id)
             else:
                 db.update("scoreboard", vars={"reg_id": register_id}, where="player_id = $reg_id", player_name=player_name)
 

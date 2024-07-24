@@ -1,4 +1,4 @@
-import web, tempfile
+import web
 from controllers.home import home
 from controllers.submit import submit
 from controllers.logout import logout
@@ -20,10 +20,10 @@ urls = (
 app = web.application(urls, locals())
 render = web.template.render("templates/", base="layout")
 db = web.database(dbn="sqlite", db="ttf.db")
-state = web.session.Session(app, web.session.DiskStore(tempfile.mkdtemp()), initializer={ "started": False, }) # game state
+db.insert("gamestate", key="started", value=False) # Initialize gamestate
 
 def load_gctx():
-    web.ctx.gctx = (state, db, render)
+    web.ctx.gctx = (db, render)
     web.template.Template.globals["baseurl"] = web.ctx.env["HTTP_HOST"]
     
 app.add_processor(web.loadhook(load_gctx))

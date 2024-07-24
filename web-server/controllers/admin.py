@@ -6,7 +6,11 @@ class admin:
 
     def GET(self):
         
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
 
         auth()
         
@@ -22,81 +26,87 @@ class admin:
         player_count = len(db.select("scoreboard").list())
         flag_submission_count = len(db.select("scoreboard", where="flag not null").list())
         
-        return render.admin(state.started, player_count, flag_submission_count)
+        return render.admin(state.get("started"), player_count, flag_submission_count)
 
 
     def POST(self):
 
-        state, db, render = web.ctx.gctx
+        db, render = web.ctx.gctx
+
+        state = {}
+        for entry in db.select("gamestate").list():
+            state[entry.key] = entry.value
 
         auth()
         
         start = web.input().get("start")
         
-        if not state.started and start is not None and start == "game":
-            
-            inpipe = "/home/control/ttfmessageinpipe"
-            outpipe = "/home/control/ttfmessageoutpipe"
-            
-            with open(inpipe, "w") as call:
-                call.write("start")
-                call.flush()
-            
-            with open(outpipe, "r") as res:
-                for line in res:
-                    if not line == "done":
-                        print(line)
-                        return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line)
+        if not state.get("started") and start is not None and start == "game":
 
-            players = db.select("scoreboard", what="player_id").list()
-            pairs = []
+            if not state.get("debug"):
 
-            while len(players):
-                item = players.pop(random.randrange(len(players)))
-                pair = players.pop(random.randrange(len(players)))
-                pairs.append(sorted([item.player_id, pair.player_id]))
+                inpipe = "/home/control/ttfmessageinpipe"
+                outpipe = "/home/control/ttfmessageoutpipe"
                 
-            pair_index = 0
-                
-            for pair in pairs:
-                db.update("scoreboard", vars={"reg_id": pair[0]}, where="player_id = $reg_id", partner_id=pair[1])
-                db.update("scoreboard", vars={"reg_id": pair[1]}, where="player_id = $reg_id", partner_id=pair[0])
-                
-                username = hashlib.shake_128((pair[0] + "mix the users" + pair[1]).encode("ascii")).hexdigest(3)
-                print(username)
-
-                password = hashlib.shake_128((username + "salty password").encode("ascii")).hexdigest(4)
-                print(password)
-
-                flag = hashlib.shake_256((username + "tinker the flag" + password).encode("ascii")).hexdigest(8)
-                print(flag)
-
                 with open(inpipe, "w") as call:
-                    call.write(f"{username}:{password}:{flag}")
+                    call.write("start")
                     call.flush()
-
+                
                 with open(outpipe, "r") as res:
                     for line in res:
                         if not line == "done":
                             print(line)
-                            return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
-            
-                generate_steganograph_image_pair(pair, pair_index, username, password)
-                pair_index += 1
+                            return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line)
 
-            
-            with open(inpipe, "w") as call:
-                call.write("end")
-                call.flush()
+                players = db.select("scoreboard", what="player_id").list()
+                pairs = []
 
-            with open(outpipe, "r") as res:
-                for line in res:
-                    print(line)
-                    if not line == "done":
-                        print(line)
-                        return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
+                while len(players):
+                    item = players.pop(random.randrange(len(players)))
+                    pair = players.pop(random.randrange(len(players)))
+                    pairs.append(sorted([item.player_id, pair.player_id]))
+                    
+                pair_index = 0
+                    
+                for pair in pairs:
+                    db.update("scoreboard", vars={"reg_id": pair[0]}, where="player_id = $reg_id", partner_id=pair[1])
+                    db.update("scoreboard", vars={"reg_id": pair[1]}, where="player_id = $reg_id", partner_id=pair[0])
+                    
+                    username = hashlib.shake_128((pair[0] + "mix the users" + pair[1]).encode("ascii")).hexdigest(3)
+                    print(username)
+
+                    password = hashlib.shake_128((username + "salty password").encode("ascii")).hexdigest(4)
+                    print(password)
+
+                    flag = hashlib.shake_256((username + "tinker the flag" + password).encode("ascii")).hexdigest(8)
+                    print(flag)
+
+                    with open(inpipe, "w") as call:
+                        call.write(f"{username}:{password}:{flag}")
+                        call.flush()
+
+                    with open(outpipe, "r") as res:
+                        for line in res:
+                            if not line == "done":
+                                print(line)
+                                return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
                 
-            state["started"] = True
+                    generate_steganograph_image_pair(pair, pair_index, username, password)
+                    pair_index += 1
+
+                
+                with open(inpipe, "w") as call:
+                    call.write("end")
+                    call.flush()
+
+                with open(outpipe, "r") as res:
+                    for line in res:
+                        print(line)
+                        if not line == "done":
+                            print(line)
+                            return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
+                    
+            db.update("gamestate", vars={"key": "started"}, where="key = $key", value=True)
 
         web.header("Authorization", "Basic " + base64.b64encode("gamemaster:letthegamesbegin".encode("ascii")).decode("ascii"))
         raise web.seeother("/admin")

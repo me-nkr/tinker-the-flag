@@ -11,7 +11,7 @@ def userauth(web, db, render, state, home=False):
     if not register_id or len(player_record) < 1:
         if home:
             web.setcookie("register_id", None, expires=0)
-            return {"status": False, "data": render.home(status="new", started=state.started)}
+            return {"status": False, "data": render.home(status="new", started=state.get("started"))}
         else:
             raise web.seeother("/")
     
@@ -19,7 +19,7 @@ def userauth(web, db, render, state, home=False):
 
     if not player_name:
         if home:
-            return {"status":False, "data": render.home(status="onboard", started=state.started, register_id=register_id)}
+            return {"status":False, "data": render.home(status="onboard", started=state.get("started"), register_id=register_id)}
         else:
             raise web.seeother("/")
 

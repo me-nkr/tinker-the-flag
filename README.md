@@ -9,8 +9,10 @@ This is the pilot challenge created for ttf
     - [ ] /home/control only accessible for gamemaster drwx------ gamemaster gamemaster
     - [ ] all in /home/control also accessible for gamemaster only
 - [ ] install dependencies
-    - [ ] python3
+    - [ ] python3.10.12
+    - [ ] python is python3
     - [ ] pip3
+    - [ ] vitrualenv
 - [ ] clone challenge code
 - [ ] create message pipes
     - [ ] /home/control/ttfmessageinpipe
@@ -36,3 +38,8 @@ This is the pilot challenge created for ttf
     - [ ] pipes
     - [ ] db
 - [ ] move to webserver and initgame directory in-script when starting
+- [ ] reset database when initializing database
+- [ ] option to remove players from admin panel
+    - list players in admin panel
+    - add a button to remove players with that
+- [ ] option to verify players to avoid duplicates
