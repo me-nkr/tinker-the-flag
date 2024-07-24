@@ -11,6 +11,7 @@ This is the pilot challenge created for ttf
 - [ ] install dependencies
     - [ ] python3
     - [ ] pip3
+- [ ] clone challenge code
 - [ ] create message pipes
     - [ ] /home/control/ttfmessageinpipe
     - [ ] /home/control/ttfmessageoutpipe
@@ -18,6 +19,7 @@ This is the pilot challenge created for ttf
     - [ ] create venv (env/)
     - [ ] install reqirements in venv
 - [ ] run the game
+    - [ ] initialize database
     - [ ] run initgame in background with stdout and stderr to either logfile or /dev/null
     - [ ] run as superuser
 - [ ] start web server
@@ -28,3 +30,9 @@ This is the pilot challenge created for ttf
 - [ ] setup a scoreboard
     - [ ] should only show the people who completed the game, this eliminates the problem of incomplete participants getting the clue from here
 - [ ] make initgame daemon if needed ( low priority )
+- [ ] update hardcoded stuff in the whole codebase
+- [ ] create pipes in initgame script
+- [ ] shut server with error if any of the following is ready
+    - [ ] pipes
+    - [ ] db
+- [ ] move to webserver and initgame directory in-script when starting
