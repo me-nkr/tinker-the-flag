@@ -1,4 +1,4 @@
-$def with (started, player_count, flag_submission_count, error=None)
+$def with (started, player_count, flag_submission_count, error=None, players=[], game_started_time=None)
 
 $if started:
     $var title: Game Stats
@@ -12,6 +12,10 @@ $var css: static/admin.css
 <div class="container">
     <h1>Welcome Gamemaster</h1>
     <h2>Player Count: $player_count</h2>
+    $if not started:
+        <form action="/add" method="get">
+            <button type="submit">Add player</button>
+        </form>
     <h2>Flags Submitted: $flag_submission_count</h2>
     $if not started:
         <form action="/admin" method="post">
@@ -19,4 +23,44 @@ $var css: static/admin.css
         </form>
         $if error:
             <span class="error">$error</span>
+    $else:
+        <h2>Game started at: $game_started_time</h2>
+    <table class="player-table">
+        <thead>
+            <tr>
+                <th>Player ID</th>
+                <th>Player name</th>
+                <th>Partner ID</th>
+                <th>Time</th>
+                <th>Verified</th>
+                <th>Banned</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            $for player in players:
+                <tr>
+                    <td>$player.get("player_id")</td>
+                    <td>$player.get("player_name")</td>
+                    <td>$player.get("partner_id")</td>
+                    <td>$player.get("time")</td>
+                    $if player.get("verified"):
+                        <td>Verified</td>
+                    $else:
+                        <td>Not Verified</td>
+                    $if player.get("banned"):
+                        <td>Banned</td>
+                    $else:
+                        <td>Not Banned</td>
+                    <td class="actions">
+                        $if not started:
+                            $if not player.get("verified"):
+                                <form action="/verify" method="get"><input type="hidden" name="player_id" value="$player.get('player_id')"><button type="submit">Verify</button></form>
+                            <form action="/remove" method="get"><input type="hidden" name="player_id" value="$player.get('player_id')"><button type="submit">Remove</button></form>
+                        $if player.get("verified") and not player.get("banned"):
+                            <form action="/ban" method="get"><input type="hidden" name="player_id" value="$player.get('player_id')"><button type="submit">Ban</button></form>
+                    </td>
+                </tr>
+        </tbody>
+    </table>
 </div>

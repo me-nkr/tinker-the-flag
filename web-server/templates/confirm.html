@@ -1,0 +1,28 @@
+$def with (started=None, action=None, player_id=None)
+
+$if action == "verify":
+    $var title: Verify player
+$elif action == "remove":
+    $var title: Remove player
+$if action == "ban":
+    $var title: Ban player
+
+$var loggedin: True
+$var admin: True
+$var css: static/home.css
+
+$if action != "ban" and started == True:
+    <div class="container">
+        <h1>The game already started</h1>
+        <form action="/admin" method="get">
+            <button type="submit">Back to admin dashboard</button>
+        </form>
+    </div>
+$else:
+    <div class="container">
+        <h2>$action.capitalize() $player_id</h2>
+        <form action="/$action" method="post">
+            <input type="hidden" name="player_id" value="$player_id">
+            <button type="submit" name="$action" value="$action">$action.capitalize()</button>
+        </form>
+    </div>

@@ -65,7 +65,7 @@ class home:
                 web.setcookie("register_id", None, expires=0)
                 return render.home(error, "new", state.get("started"), register_id=register_id)
             else:
-                db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None)
+                db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None, verified=False, banned=False)
                 logger.info(f"player <{register_id}> joined")
 
         web.setcookie("register_id", register_id, httponly= True, samesite="Strict")

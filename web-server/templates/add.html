@@ -1,0 +1,28 @@
+$def with (error=None, started=None, register_id=None, player_name=None)
+
+$var title: Add player
+$var loggedin: True
+$var admin: True
+$var css: static/home.css
+
+$if started == True:
+    <div class="container">
+        <h1>The game already started</h1>
+        <form action="/admin" method="get">
+            <button type="submit">Back to admin dashboard</button>
+        </form>
+    </div>
+$else:
+    <div class="container">
+        <form action="/add" method="post" class="register-form">
+                <label for="register_id">Player Tinkerhub Membership ID</label>
+                <input type="text" name="register_id" id="register_id" placeholder="eg: J2Y7X39TRE" value="$register_id">
+
+                <label for="player_name">Player Display Name</label>
+                <input type="text" name="player_name" id="player_name" placeholder="eg: Robin Doe" value="$player_name">
+
+                <button type="submit">Add player</button>
+            $if error:
+                <span class="error">$error</span>
+        </form>
+    </div>

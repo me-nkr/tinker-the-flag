@@ -22,3 +22,31 @@
 .error {
     color: red;
 }
+
+.player-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .player-table td, .player-table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .player-table tr:nth-child(even){background-color: #f2f2f2;}
+  
+  .player-table tr:hover {background-color: #ddd;}
+  
+  .player-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #272727;
+    color: white;
+  }
+  
+  .actions {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+  }

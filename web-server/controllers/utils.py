@@ -1,7 +1,38 @@
-import time
+import time, re, base64
 from PIL import Image, ImageDraw, ImageFont
 from netpbmfile import imwrite
 import numpy as np
+
+class logger:
+
+    def error(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [ERROR]: {message}\n")
+
+    def info(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [INFO]: {message}\n")
+
+    def warn(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [WARN]: {message}\n")
+
+    def init():
+        with open("../game.log", "a") as log:
+            log.write(f"\n\n[{time.asctime()}] [INIT]: server initialized\n")
+
+
+
+import sys
+sys.path.append("..")
+try:
+    from config import config
+except ModuleNotFoundError:
+    logger.error("missing config file")
+    exit()
+    
+admin_username = config.get("admin_username") or "gamemaster"
+admin_password = config.get("admin_password") or "gamemaster"
 
 def userauth(web, db, render, state, home=False):
 
@@ -63,20 +94,19 @@ def generate_steganograph_image_pair(player_id_pair, dimension_seed, username, p
     write_pbm_image(f"images/{player_id_pair[1]}.pbm", xorarr)
 
 
-class logger:
+def validate_creds(creds):
+    
+    allowed = (admin_username, admin_password)
 
-    def error(message):
-        with open("../game.log", "a") as log:
-            log.write(f"[{time.asctime()}] [ERROR]: {message}\n")
+    auth = re.sub("^Basic ", "", creds)
+    username, password = base64.b64decode(auth).decode("ascii").split(":")
+    
+    return True if (username, password) == allowed else False
 
-    def info(message):
-        with open("../game.log", "a") as log:
-            log.write(f"[{time.asctime()}] [INFO]: {message}\n")
+def adminauth(web):
 
-    def warn(message):
-        with open("../game.log", "a") as log:
-            log.write(f"[{time.asctime()}] [WARN]: {message}\n")
+    creds = web.ctx.env.get("HTTP_AUTHORIZATION")
 
-    def init():
-        with open("../game.log", "a") as log:
-            log.write(f"\n\n[{time.asctime()}] [INIT]: server initialized\n")
+    if not creds or not validate_creds(creds):
+        web.header("WWW-Authenticate", "Basic realm=\"ttf admin\"")
+        raise web.unauthorized()

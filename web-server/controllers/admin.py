@@ -1,5 +1,5 @@
-import web, re, base64, random, hashlib
-from controllers.utils import generate_steganograph_image_pair, logger
+import web, base64, random, hashlib, time
+from controllers.utils import generate_steganograph_image_pair, logger, adminauth
 
 import sys
 sys.path.append("..")
@@ -16,14 +16,14 @@ class admin:
 
     def GET(self):
         
+        adminauth(web)
+        
         db, render = web.ctx.gctx
 
         state = {}
         for entry in db.select("gamestate").list():
             state[entry.key] = entry.value
 
-        auth()
-        
         # interface requirements
             # start game [ ]
             # stats
@@ -32,22 +32,24 @@ class admin:
                 # unique logins
                 # flag file opens
                 # flag submissions ( important ) [x]
-        
-        player_count = len(db.select("scoreboard").list())
+        players = db.select("scoreboard").list()
+
+        player_count = len(players)
         flag_submission_count = len(db.select("scoreboard", where="flag not null").list())
-        
-        return render.admin(state.get("started"), player_count, flag_submission_count)
+        game_start_time = state.get("start_time") and time.asctime(time.localtime(state.get("start_time")))
+        players = list(map(lambda player: dict(player), players))
+        return render.admin(state.get("started"), player_count, flag_submission_count, players=players, game_started_time=game_start_time)
 
 
     def POST(self):
+
+        adminauth(web)
 
         db, render = web.ctx.gctx
 
         state = {}
         for entry in db.select("gamestate").list():
             state[entry.key] = entry.value
-
-        auth()
         
         start = web.input().get("start")
         
@@ -115,25 +117,9 @@ class admin:
                             return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
                     
             db.update("gamestate", vars={"key": "started"}, where="key = $key", value=True)
+            db.update("gamestate", vars={"key": "start_time"}, where="key = $key", value=time.time())
             logger.info("game started")
 
         web.header("Authorization", "Basic " + base64.b64encode(f"{admin_username}:{admin_password}".encode("ascii")).decode("ascii"))
         raise web.seeother("/admin")
 
-
-def validate_creds(creds):
-    
-    allowed = (admin_username, admin_password)
-
-    auth = re.sub("^Basic ", "", creds)
-    username, password = base64.b64decode(auth).decode("ascii").split(":")
-    
-    return True if (username, password) == allowed else False
-
-def auth():
-
-    creds = web.ctx.env.get("HTTP_AUTHORIZATION")
-
-    if not creds or not validate_creds(creds):
-        web.header("WWW-Authenticate", "Basic realm=\"ttf admin\"")
-        raise web.unauthorized()

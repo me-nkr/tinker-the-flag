@@ -3,6 +3,10 @@ from controllers.home import home
 from controllers.submit import submit
 from controllers.logout import logout
 from controllers.admin import admin
+from controllers.add import add
+from controllers.verify import verify
+from controllers.remove import remove
+from controllers.ban import ban
 from controllers.utils import logger
 
 import sys
@@ -32,6 +36,10 @@ urls = (
     "/submit", submit,
     "/logout", logout,
     "/admin", admin,
+    "/add", add,
+    "/verify", verify,
+    "/remove", remove,
+    "/ban", ban
     )
 
 app = web.application(urls, locals())
@@ -43,6 +51,11 @@ if len(db.where("gamestate", key="started").list()) < 1:
     db.insert("gamestate", key="started", value=False)
 else:
     db.update("gamestate", where="key = 'started'", value=False)
+
+if len(db.where("gamestate", key="start_time").list()) < 1:
+    db.insert("gamestate", key="start_time", value=None)
+else:
+    db.update("gamestate", where="key = 'start_time'", value=None)
 
 def load_gctx():
     web.ctx.gctx = (db, render)
