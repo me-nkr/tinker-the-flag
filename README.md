@@ -9,10 +9,10 @@ This is the pilot challenge created for ttf
     - [ ] /home/control only accessible for gamemaster drwx------ gamemaster gamemaster
     - [ ] all in /home/control also accessible for gamemaster only
 - [ ] install dependencies
-    - [ ] python3.10.12
-    - [ ] python is python3
-    - [ ] pip3
-    - [ ] vitrualenv
+    - [ ] python3.10
+    - [ ] python3.10-venv
+    - [ ] python3-pip
+    - [ ] python-is-python3
 - [ ] clone challenge code
 - [ ] create message pipes
     - [ ] /home/control/ttfmessageinpipe
@@ -20,11 +20,23 @@ This is the pilot challenge created for ttf
 - [ ] install server dependencies
     - [ ] create venv (env/)
     - [ ] install reqirements in venv
+- [ ] create config.py
+    - create in root directory
+    - structure
+    ```py
+    config = {
+        "arena_password": "<arena_password>",
+        "admin_username": "<admin_username>",
+        "admin_password": "<admin_password>"
+    }
+    ```
 - [ ] run the game
     - [ ] initialize database
     - [ ] run initgame in background with stdout and stderr to either logfile or /dev/null
     - [ ] run as superuser
 - [ ] start web server
+
+Please check the `game.log` file for errors and stuff
 
 ## Next steps
 - [ ] automate possible steps in the above list

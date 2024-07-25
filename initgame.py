@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import os, shutil, subprocess, pwd, json, random, grp, time
+from config import config
 
-inpipe="/home/control/ttfmessageinpipe"
-outpipe="/home/control/ttfmessageoutpipe"
+inpipe="ttfmessageinpipe"
+outpipe="ttfmessageoutpipe"
 
 response = ""
 
@@ -53,7 +54,7 @@ while True:
                     except KeyError:
                         pass
                     finally:
-                        arena_pass = subprocess.run(["openssl", "passwd", "thisarenaisofflimits"], capture_output=True, encoding="utf-8").stdout.strip()
+                        arena_pass = subprocess.run(["openssl", "passwd", config.get("arena_password") or "thisarenaisofflimits"], capture_output=True, encoding="utf-8").stdout.strip()
 
                         subprocess.run(["useradd", "-MN",
                                         "-p", arena_pass,
@@ -89,11 +90,11 @@ while True:
                                             "/dev/null", f"/home/arena/{spot}/{item}"])
 
                         # clear images directory
-                        if os.path.exists("/home/control/web-server/images"):
-                            shutil.rmtree("/home/control/web-server/images")
+                        if os.path.exists("web-server/images"):
+                            shutil.rmtree("web-server/images")
 
-                        os.mkdir("/home/control/web-server/images", 0o700)
-                        os.chown("/home/control/web-server/images", pwd.getpwnam("gamemaster").pw_uid, grp.getgrnam("gamemaster").gr_gid)
+                        os.mkdir("web-server/images", 0o700)
+                        os.chown("web-server/images", pwd.getpwnam("gamemaster").pw_uid, grp.getgrnam("gamemaster").gr_gid)
                         
                     with open(outpipe, "w") as res:
                         res.write("done")
@@ -158,5 +159,3 @@ while True:
                                 res.write("can't create user")
                                 res.flush()
 
-                        # use that to create user and flag file
-                

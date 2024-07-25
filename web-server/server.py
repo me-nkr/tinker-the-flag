@@ -5,10 +5,16 @@ from controllers.logout import logout
 from controllers.admin import admin
 from controllers.utils import logger
 
+import sys
+sys.path.append("..")
+try:
+    from config import config
+except ModuleNotFoundError:
+    logger.error("missing config file")
+    exit()
+
 # Notes
 # error 0xf0 is clue file not found, check if the file exist
-
-logger.init()
 
 if not os.path.exists("../ttfmessageinpipe") or not os.path.exists("../ttfmessageoutpipe"):
     logger.error("missing message pipe")
@@ -17,6 +23,7 @@ if not os.path.exists("ttf.db"):
     logger.error("missing database")
     exit()
 
+logger.init()
 
 web.config.debug = False
 

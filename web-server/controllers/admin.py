@@ -1,6 +1,16 @@
 import web, re, base64, random, hashlib
 from controllers.utils import generate_steganograph_image_pair, logger
 
+import sys
+sys.path.append("..")
+try:
+    from config import config
+except ModuleNotFoundError:
+    logger.error("missing config file")
+    exit()
+    
+admin_username = config.get("admin_username") or "gamemaster"
+admin_password = config.get("admin_password") or "gamemaster"
 
 class admin:
 
@@ -45,8 +55,8 @@ class admin:
 
             if not state.get("debug"):
 
-                inpipe = "/home/control/ttfmessageinpipe"
-                outpipe = "/home/control/ttfmessageoutpipe"
+                inpipe = "../ttfmessageinpipe"
+                outpipe = "../ttfmessageoutpipe"
                 
                 with open(inpipe, "w") as call:
                     call.write("start")
@@ -107,13 +117,13 @@ class admin:
             db.update("gamestate", vars={"key": "started"}, where="key = $key", value=True)
             logger.info("game started")
 
-        web.header("Authorization", "Basic " + base64.b64encode("gamemaster:letthegamesbegin".encode("ascii")).decode("ascii"))
+        web.header("Authorization", "Basic " + base64.b64encode(f"{admin_username}:{admin_password}".encode("ascii")).decode("ascii"))
         raise web.seeother("/admin")
 
 
 def validate_creds(creds):
     
-    allowed = ("gamemaster", "letthegamesbegin")
+    allowed = (admin_username, admin_password)
 
     auth = re.sub("^Basic ", "", creds)
     username, password = base64.b64decode(auth).decode("ascii").split(":")
