@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, shutil, subprocess, pwd, json, random, grp
+import os, shutil, subprocess, pwd, json, random, grp, time
 
 inpipe="/home/control/ttfmessageinpipe"
 outpipe="/home/control/ttfmessageoutpipe"
@@ -12,7 +12,8 @@ while True:
         for command in call:
             if command:
 
-                print(command)
+                with open("game.log", "a") as log:
+                    log.write(f"[{time.asctime()}] [DAMEON]: incoming command {command}\n")
 
                 if command == "start":
 

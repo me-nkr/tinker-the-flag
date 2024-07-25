@@ -1,3 +1,4 @@
+import time
 from PIL import Image, ImageDraw, ImageFont
 from netpbmfile import imwrite
 import numpy as np
@@ -60,3 +61,22 @@ def generate_steganograph_image_pair(player_id_pair, dimension_seed, username, p
 
     write_pbm_image(f"images/{player_id_pair[0]}.pbm", seedarr)
     write_pbm_image(f"images/{player_id_pair[1]}.pbm", xorarr)
+
+
+class logger:
+
+    def error(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [ERROR]: {message}\n")
+
+    def info(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [INFO]: {message}\n")
+
+    def warn(message):
+        with open("../game.log", "a") as log:
+            log.write(f"[{time.asctime()}] [WARN]: {message}\n")
+
+    def init():
+        with open("../game.log", "a") as log:
+            log.write(f"\n\n[{time.asctime()}] [INIT]: server initialized\n")

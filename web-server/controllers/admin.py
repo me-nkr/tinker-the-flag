@@ -1,5 +1,5 @@
 import web, re, base64, random, hashlib
-from controllers.utils import generate_steganograph_image_pair
+from controllers.utils import generate_steganograph_image_pair, logger
 
 
 class admin:
@@ -55,7 +55,7 @@ class admin:
                 with open(outpipe, "r") as res:
                     for line in res:
                         if not line == "done":
-                            print(line)
+                            logger.error(line)
                             return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line)
 
                 players = db.select("scoreboard", what="player_id").list()
@@ -73,13 +73,8 @@ class admin:
                     db.update("scoreboard", vars={"reg_id": pair[1]}, where="player_id = $reg_id", partner_id=pair[0])
                     
                     username = hashlib.shake_128((pair[0] + "mix the users" + pair[1]).encode("ascii")).hexdigest(3)
-                    print(username)
-
                     password = hashlib.shake_128((username + "salty password").encode("ascii")).hexdigest(4)
-                    print(password)
-
                     flag = hashlib.shake_256((username + "tinker the flag" + password).encode("ascii")).hexdigest(8)
-                    print(flag)
 
                     with open(inpipe, "w") as call:
                         call.write(f"{username}:{password}:{flag}")
@@ -88,10 +83,14 @@ class admin:
                     with open(outpipe, "r") as res:
                         for line in res:
                             if not line == "done":
-                                print(line)
+                                logger.error(line)
                                 return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
                 
+                    logger.info(f"ctf box user <{username}> with password <{password}> and flag <{flag}> created for players <{pair[0]}> and <{pair[1]}>")
+
                     generate_steganograph_image_pair(pair, pair_index, username, password)
+                    logger.info(f"clue images generated for players <{pair[0]}> and <{pair[1]}>")
+
                     pair_index += 1
 
                 
@@ -101,12 +100,12 @@ class admin:
 
                 with open(outpipe, "r") as res:
                     for line in res:
-                        print(line)
                         if not line == "done":
-                            print(line)
+                            logger.error(line)
                             return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
                     
             db.update("gamestate", vars={"key": "started"}, where="key = $key", value=True)
+            logger.info("game started")
 
         web.header("Authorization", "Basic " + base64.b64encode("gamemaster:letthegamesbegin".encode("ascii")).decode("ascii"))
         raise web.seeother("/admin")

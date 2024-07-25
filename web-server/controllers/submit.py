@@ -1,4 +1,5 @@
-import web, hashlib, time, controllers.utils as utils
+import web, hashlib, time
+from controllers.utils import userauth, logger
 
 class submit: 
     
@@ -14,7 +15,7 @@ class submit:
         if not state.get("started"):
             raise web.seeother("/")
         
-        auth = utils.userauth(web, db, render, state)
+        auth = userauth(web, db, render, state)
         if not auth["status"]:
             return auth["data"]
         else:
@@ -41,7 +42,7 @@ class submit:
         if web.ctx.env["CONTENT_TYPE"] != "application/x-www-form-urlencoded":
             raise web.badrequest("Invallid request")
             
-        auth = utils.userauth(web, db, render, state)
+        auth = userauth(web, db, render, state)
         if not auth["status"]:
             return auth["data"]
         else:
@@ -75,5 +76,6 @@ class submit:
             return render.submit(error, partner_id=partner_id, username=username, password=password, flag=flag, player_name=player_name)
 
         db.update("scoreboard", vars={"reg_id": register_id, }, where="player_id = $reg_id", flag=flag, time=time.time())
+        logger.info(f"player <{register_id}> submitted the flag")
         raise web.seeother("/submit")
             

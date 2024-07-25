@@ -1,4 +1,5 @@
-import web, controllers.utils as utils
+import web
+from controllers.utils import userauth, logger
 
 class home:
 
@@ -13,20 +14,19 @@ class home:
         error = ""
         clue_data = ""
         
-        auth = utils.userauth(web, db, render, state, home=True)
+        auth = userauth(web, db, render, state, home=True)
         if not auth["status"]:
             return auth["data"]
         else:
             register_id, player_name = auth["data"]
 
-        print(web.ctx.gctx[0].started)
-        
         if state.get("started"):
             try:
                 with open("images/" + register_id + ".pbm", "r") as clue:
                     clue_data = clue.read()
             except FileNotFoundError:
                 error = "error 0xf0, please contact the organizer"
+                logger.warn(f"missing image file for player <{register_id}>")
 
         return render.home(error, "registered", state.get("started"), clue_data, register_id, player_name)
 
@@ -66,6 +66,7 @@ class home:
                 return render.home(error, "new", state.get("started"), register_id=register_id)
             else:
                 db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None)
+                logger.info(f"player <{register_id}> joined")
 
         web.setcookie("register_id", register_id, httponly= True, samesite="Strict")
         
@@ -77,5 +78,6 @@ class home:
                 return render.home(error, "onboard", state.get("started"), register_id=register_id)
             else:
                 db.update("scoreboard", vars={"reg_id": register_id}, where="player_id = $reg_id", player_name=player_name)
+                logger.info(f"player <{register_id}> updated their name to <{player_name}>")
 
         raise web.seeother("/")
