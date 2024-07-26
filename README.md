@@ -39,6 +39,7 @@ This is the pilot challenge created for ttf
 Please check the `game.log` file for errors and stuff
 
 ## Next steps
+- [ ] update time in admin panel to either time in human readable form or time taken
 - [ ] implement ban and it's sideeffects
     - [ ] ban process
         - as long as they don't violate T&C there is no ban
