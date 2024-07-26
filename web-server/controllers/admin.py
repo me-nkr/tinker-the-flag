@@ -38,7 +38,8 @@ class admin:
         flag_submission_count = len(db.select("scoreboard", where="flag not null").list())
         game_start_time = state.get("start_time") and time.asctime(time.localtime(state.get("start_time")))
         players = list(map(lambda player: dict(player), players))
-        return render.admin(state.get("started"), player_count, flag_submission_count, players=players, game_started_time=game_start_time)
+
+        return render.admin(state.get("started"), player_count, flag_submission_count, players=players, game_started_time=game_start_time, locked=state.get("login_locked"), ended=state.get("ended"))
 
 
     def POST(self):
@@ -53,7 +54,12 @@ class admin:
         
         start = web.input().get("start")
         
-        if not state.get("started") and start is not None and start == "game":
+        if not state.get("started") and state.get("login_locked") and start is not None and start == "game":
+            
+            if len(db.select("scoreboard").list()) % 2 != 0:
+                return render.admin(False, 0, 0, error="Number of players not even", locked=state.get("login_locked"), players= list(map(lambda player: dict(player), db.select("scoreboard").list())), ended=state.get("ended"))
+            elif len(db.where("scoreboard", verified=False).list()) > 0:
+                return render.admin(False, 0, 0, error="Not all users are verified", locked=state.get("login_locked"), players= list(map(lambda player: dict(player), db.select("scoreboard").list())), ended=state.get("ended"))
 
             if not state.get("debug"):
 
@@ -68,7 +74,7 @@ class admin:
                     for line in res:
                         if not line == "done":
                             logger.error(line)
-                            return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line)
+                            return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line, locked=state.get("login_locked"), ended=state.get("ended"))
 
                 players = db.select("scoreboard", what="player_id").list()
                 pairs = []
@@ -96,7 +102,7 @@ class admin:
                         for line in res:
                             if not line == "done":
                                 logger.error(line)
-                                return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
+                                return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line, locked=state.get("login_locked"), ended=state.get("ended"))
                 
                     logger.info(f"ctf box user <{username}> with password <{password}> and flag <{flag}> created for players <{pair[0]}> and <{pair[1]}>")
 
@@ -114,7 +120,7 @@ class admin:
                     for line in res:
                         if not line == "done":
                             logger.error(line)
-                            return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line)
+                            return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line, locked=state.get("login_locked"), ended=state.get("ended"))
                     
             db.update("gamestate", vars={"key": "started"}, where="key = $key", value=True)
             db.update("gamestate", vars={"key": "start_time"}, where="key = $key", value=time.time())

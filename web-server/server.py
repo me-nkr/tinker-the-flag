@@ -7,6 +7,8 @@ from controllers.add import add
 from controllers.verify import verify
 from controllers.remove import remove
 from controllers.ban import ban
+from controllers.lock import lock
+from controllers.end import end
 from controllers.utils import logger
 
 import sys
@@ -39,7 +41,9 @@ urls = (
     "/add", add,
     "/verify", verify,
     "/remove", remove,
-    "/ban", ban
+    "/ban", ban,
+    "/lock", lock,
+    "/end", end
     )
 
 app = web.application(urls, locals())
@@ -47,6 +51,11 @@ render = web.template.render("templates/", base="layout")
 db = web.database(dbn="sqlite", db="ttf.db")
 
 # Initialize gamestate
+if len(db.where("gamestate", key="login_locked").list()) < 1:
+    db.insert("gamestate", key="login_locked", value=False)
+else:
+    db.update("gamestate", where="key = 'login_locked'", value=False)
+
 if len(db.where("gamestate", key="started").list()) < 1:
     db.insert("gamestate", key="started", value=False)
 else:
@@ -56,6 +65,11 @@ if len(db.where("gamestate", key="start_time").list()) < 1:
     db.insert("gamestate", key="start_time", value=None)
 else:
     db.update("gamestate", where="key = 'start_time'", value=None)
+
+if len(db.where("gamestate", key="ended").list()) < 1:
+    db.insert("gamestate", key="ended", value=False)
+else:
+    db.update("gamestate", where="key = 'ended'", value=False)
 
 def load_gctx():
     web.ctx.gctx = (db, render)

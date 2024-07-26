@@ -1,17 +1,35 @@
-$def with (started=None, action=None, player_id=None)
+$def with (started=None, action=None, player_id=None, locked=None, ended=None)
 
 $if action == "verify":
     $var title: Verify player
 $elif action == "remove":
     $var title: Remove player
-$if action == "ban":
+$elif action == "ban":
     $var title: Ban player
+$elif action == "lock":
+    $var title: Lock login
+$elif action == "end":
+    $var title: End game
 
 $var loggedin: True
 $var admin: True
 $var css: static/home.css
 
-$if action != "ban" and started == True:
+$if action == "end" and ended == True:
+    <div class="container">
+        <h1>The game already ended</h1>
+        <form action="/admin" method="get">
+            <button type="submit">Back to admin dashboard</button>
+        </form>
+    </div>
+$elif action == "lock" and locked == True:
+    <div class="container">
+        <h1>The game is already locked</h1>
+        <form action="/admin" method="get">
+            <button type="submit">Back to admin dashboard</button>
+        </form>
+    </div>
+$elif action != "ban" and action != "end" and action != "lock" and started == True:
     <div class="container">
         <h1>The game already started</h1>
         <form action="/admin" method="get">

@@ -60,8 +60,8 @@ class home:
         player_record = db.where("scoreboard", what="player_name", player_id=register_id).list()
 
         if len(player_record) < 1:
-            if state.get("started"):
-                error = "invalid registration id"
+            if state.get("login_locked"):
+                error = "player not registered"
                 web.setcookie("register_id", None, expires=0)
                 return render.home(error, "new", state.get("started"), register_id=register_id)
             else:

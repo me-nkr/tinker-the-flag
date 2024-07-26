@@ -18,7 +18,7 @@ class ban:
         if not player_id or len(db.where("scoreboard", player_id=player_id, verified=True, banned=False).list()) < 1: 
             raise web.seeother("/admin")
 
-        return render.confirm(started=state.get("started"), action="ban", player_id=player_id)
+        return render.confirm(started=state.get("started"), action="ban", player_id=player_id, locked=state.get("login_locked"), ended=state.get("ended"))
 
     def POST(self):
 

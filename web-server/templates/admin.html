@@ -1,4 +1,4 @@
-$def with (started, player_count, flag_submission_count, error=None, players=[], game_started_time=None)
+$def with (started, player_count, flag_submission_count, error=None, players=[], game_started_time=None, locked=False, ended=False)
 
 $if started:
     $var title: Game Stats
@@ -17,7 +17,11 @@ $var css: static/admin.css
             <button type="submit">Add player</button>
         </form>
     <h2>Flags Submitted: $flag_submission_count</h2>
-    $if not started:
+    $if not locked:
+        <form action="/lock" method="get">
+            <button type="submit">Lock game</button>
+        </form>
+    $elif not started:
         <form action="/admin" method="post">
             <button type="submit" name="start" value="game">Start Game</button>
         </form>
@@ -25,6 +29,10 @@ $var css: static/admin.css
             <span class="error">$error</span>
     $else:
         <h2>Game started at: $game_started_time</h2>
+        $if not ended:
+            <form action="/end" method="get">
+                <button type="submit">End game</button>
+            </form>
     <table class="player-table">
         <thead>
             <tr>

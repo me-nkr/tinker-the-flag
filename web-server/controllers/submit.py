@@ -12,7 +12,7 @@ class submit:
             state[entry.key] = entry.value
 
         
-        if not state.get("started"):
+        if not state.get("started") or state.get("ended"):
             raise web.seeother("/")
         
         auth = userauth(web, db, render, state)
@@ -41,6 +41,9 @@ class submit:
 
         if web.ctx.env["CONTENT_TYPE"] != "application/x-www-form-urlencoded":
             raise web.badrequest("Invallid request")
+
+        if not state.get("started") or state.get("ended"):
+            raise web.seeother("/submit")
             
         auth = userauth(web, db, render, state)
         if not auth["status"]:
