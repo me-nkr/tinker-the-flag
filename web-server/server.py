@@ -9,6 +9,7 @@ from controllers.remove import remove
 from controllers.ban import ban
 from controllers.lock import lock
 from controllers.end import end
+from controllers.scoreboard import scoreboard
 from controllers.utils import logger
 
 import sys
@@ -43,7 +44,8 @@ urls = (
     "/remove", remove,
     "/ban", ban,
     "/lock", lock,
-    "/end", end
+    "/end", end,
+    "/scoreboard", scoreboard
     )
 
 app = web.application(urls, locals())

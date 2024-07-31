@@ -1,0 +1,26 @@
+$def with (game_started_time, scoreboard)
+
+$var title: Scoreboard
+    
+$var loggedin: False
+$var admin: False
+$var css: static/admin.css
+
+<div class="container">
+    <h1>Scoreboard</h1>
+    <table class="player-table">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            $for score in scoreboard:
+                <tr>
+                    <td>$score.get("team")</td>
+                    <td>$(str(floor((score.get("time") - game_started_time)/86400)) + " days " + str(floor(((score.get("time") - game_started_time)%86400)/3600)) + " hours " + str(floor((score.get("time") - game_started_time)%3600/60)) + " minutes " + str(floor(score.get("time") - game_started_time)%60) + " seconds")</td>
+                </tr>
+        </tbody>
+    </table>
+</div>
