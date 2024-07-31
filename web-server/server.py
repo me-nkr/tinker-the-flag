@@ -1,4 +1,4 @@
-import web, os
+import web, os, math, time
 from controllers.home import home
 from controllers.submit import submit
 from controllers.logout import logout
@@ -74,6 +74,9 @@ else:
 def load_gctx():
     web.ctx.gctx = (db, render)
     web.template.Template.globals["baseurl"] = web.ctx.env["HTTP_HOST"]
+    web.template.Template.globals["floor"] = math.floor
+    web.template.Template.globals["time"] = time
+    web.template.Template.globals["str"] = str
     
 app.add_processor(web.loadhook(load_gctx))
 

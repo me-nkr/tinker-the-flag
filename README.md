@@ -39,7 +39,6 @@ This is the pilot challenge created for ttf
 Please check the `game.log` file for errors and stuff
 
 ## Next steps
-- [ ] update time in admin panel to either time in human readable form or time taken
 - [ ] implement ban and it's sideeffects
     - [ ] ban process
         - as long as they don't violate T&C there is no ban
@@ -58,3 +57,8 @@ Please check the `game.log` file for errors and stuff
     - [ ] reset database when initializing database, not needed just delete the database file
 - [ ] make initgame daemon if needed ( low priority )
     - [ ] move to webserver and initgame directory in-script when starting
+
+## Test Observations
+- [ ] find pbm file viewer for windows
+    - it's hard, the closest I can get is filehelper.com, but still with edge smoothening
+- [ ] better clue, or a way for the clue to make sense

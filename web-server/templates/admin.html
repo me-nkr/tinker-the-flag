@@ -27,8 +27,8 @@ $var css: static/admin.css
         </form>
         $if error:
             <span class="error">$error</span>
-    $else:
-        <h2>Game started at: $game_started_time</h2>
+    $elif game_started_time:
+        <h2>Game started at: $time.asctime(time.localtime(game_started_time))</h2>
         $if not ended:
             <form action="/end" method="get">
                 <button type="submit">End game</button>
@@ -51,7 +51,10 @@ $var css: static/admin.css
                     <td>$player.get("player_id")</td>
                     <td>$player.get("player_name")</td>
                     <td>$player.get("partner_id")</td>
-                    <td>$player.get("time")</td>
+                    $if game_started_time and player.get("time"):
+                        <td>$(str(floor((player.get("time") - game_started_time)/86400)) + " days " + str(floor(((player.get("time") - game_started_time)%86400)/3600)) + " hours " + str(floor((player.get("time") - game_started_time)%3600/60)) + " minutes " + str(floor(player.get("time") - game_started_time)%60) + " seconds")</td>
+                    $else:
+                        <td></td>
                     $if player.get("verified"):
                         <td>Verified</td>
                     $else:

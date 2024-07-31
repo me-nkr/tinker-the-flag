@@ -36,7 +36,7 @@ class admin:
 
         player_count = len(players)
         flag_submission_count = len(db.select("scoreboard", where="flag not null").list())
-        game_start_time = state.get("start_time") and time.asctime(time.localtime(state.get("start_time")))
+        game_start_time = state.get("start_time")
         players = list(map(lambda player: dict(player), players))
 
         return render.admin(state.get("started"), player_count, flag_submission_count, players=players, game_started_time=game_start_time, locked=state.get("login_locked"), ended=state.get("ended"))
