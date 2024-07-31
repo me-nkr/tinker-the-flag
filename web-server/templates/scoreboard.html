@@ -16,11 +16,12 @@ $var css: static/admin.css
             </tr>
         </thead>
         <tbody>
-            $for score in scoreboard:
-                <tr>
-                    <td>$score.get("team")</td>
-                    <td>$(str(floor((score.get("time") - game_started_time)/86400)) + " days " + str(floor(((score.get("time") - game_started_time)%86400)/3600)) + " hours " + str(floor((score.get("time") - game_started_time)%3600/60)) + " minutes " + str(floor(score.get("time") - game_started_time)%60) + " seconds")</td>
-                </tr>
+            $if game_started_time:
+                $for score in scoreboard:
+                    <tr>
+                        <td>$score.get("team")</td>
+                        <td>$(str(floor((score.get("time") - game_started_time)/86400)) + " days " + str(floor(((score.get("time") - game_started_time)%86400)/3600)) + " hours " + str(floor((score.get("time") - game_started_time)%3600/60)) + " minutes " + str(floor(score.get("time") - game_started_time)%60) + " seconds")</td>
+                    </tr>
         </tbody>
     </table>
 </div>

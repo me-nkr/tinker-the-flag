@@ -11,13 +11,18 @@ class scoreboard:
             state[entry.key] = entry.value
             
         scores = db.query("SELECT \
-                            t1.player_name || ' and ' || t2.player_name AS team, \
+                            IIF(t1.banned, \
+                                t2.player_name, \
+                                IIF(t2.banned, \
+                                   t1.player_name, \
+                            t1.player_name || ' and ' || t2.player_name)) AS team, \
                             ((t1.time + t2.time)/2) AS time \
                           FROM scoreboard t1 \
                           JOIN scoreboard t2 \
                           ON t1.player_id = t2.partner_id \
                           AND t1.partner_id = t2.player_id \
                           AND t1.player_id < t2.player_id \
+                          AND (not t1.banned OR not t2.banned) \
                           AND t1.time is not null \
                           AND t2.time is not null \
                           ORDER BY (t1.time + t2.time)/2").list()
