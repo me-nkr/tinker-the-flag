@@ -56,16 +56,16 @@ class admin:
         
         if not state.get("started") and state.get("login_locked") and start is not None and start == "game":
             
-            if len(db.select("scoreboard").list()) % 2 != 0:
-                return render.admin(False, 0, 0, error="Number of players not even", locked=state.get("login_locked"), players= list(map(lambda player: dict(player), db.select("scoreboard").list())), ended=state.get("ended"))
-            elif len(db.where("scoreboard", verified=False).list()) > 0:
+            if len(db.where("scoreboard", verified=False).list()) > 0:
                 return render.admin(False, 0, 0, error="Not all users are verified", locked=state.get("login_locked"), players= list(map(lambda player: dict(player), db.select("scoreboard").list())), ended=state.get("ended"))
+            elif len(db.where("scoreboard", verified=True, banned=False).list()) < 1 or len(db.where("scoreboard", verified=True, banned=False).list()) % 2 != 0:
+                return render.admin(False, 0, 0, error="Number of valid players not even or zero", locked=state.get("login_locked"), players= list(map(lambda player: dict(player), db.select("scoreboard").list())), ended=state.get("ended"))
 
+            inpipe = "../ttfmessageinpipe"
+            outpipe = "../ttfmessageoutpipe"
+            
             if not state.get("debug"):
 
-                inpipe = "../ttfmessageinpipe"
-                outpipe = "../ttfmessageoutpipe"
-                
                 with open(inpipe, "w") as call:
                     call.write("start")
                     call.flush()
@@ -76,23 +76,25 @@ class admin:
                             logger.error(line)
                             return render.admin(False, 0, 0, error="Unexpected return from daemon: " + line, locked=state.get("login_locked"), ended=state.get("ended"))
 
-                players = db.select("scoreboard", what="player_id").list()
-                pairs = []
+            players = db.where("scoreboard", what="player_id", verified=True, banned=False).list()
+            pairs = []
 
-                while len(players):
-                    item = players.pop(random.randrange(len(players)))
-                    pair = players.pop(random.randrange(len(players)))
-                    pairs.append(sorted([item.player_id, pair.player_id]))
-                    
-                pair_index = 0
-                    
-                for pair in pairs:
-                    db.update("scoreboard", vars={"reg_id": pair[0]}, where="player_id = $reg_id", partner_id=pair[1])
-                    db.update("scoreboard", vars={"reg_id": pair[1]}, where="player_id = $reg_id", partner_id=pair[0])
-                    
-                    username = hashlib.shake_128((pair[0] + "mix the users" + pair[1]).encode("ascii")).hexdigest(3)
-                    password = hashlib.shake_128((username + "salty password").encode("ascii")).hexdigest(4)
-                    flag = hashlib.shake_256((username + "tinker the flag" + password).encode("ascii")).hexdigest(8)
+            while len(players):
+                item = players.pop(random.randrange(len(players)))
+                pair = players.pop(random.randrange(len(players)))
+                pairs.append(sorted([item.player_id, pair.player_id]))
+                
+            pair_index = 0
+                
+            for pair in pairs:
+                db.update("scoreboard", vars={"reg_id": pair[0]}, where="player_id = $reg_id", partner_id=pair[1])
+                db.update("scoreboard", vars={"reg_id": pair[1]}, where="player_id = $reg_id", partner_id=pair[0])
+                
+                username = hashlib.shake_128((pair[0] + "mix the users" + pair[1]).encode("ascii")).hexdigest(3)
+                password = hashlib.shake_128((username + "salty password").encode("ascii")).hexdigest(4)
+                flag = hashlib.shake_256((username + "tinker the flag" + password).encode("ascii")).hexdigest(8)
+
+                if not state.get("debug"):
 
                     with open(inpipe, "w") as call:
                         call.write(f"{username}:{password}:{flag}")
@@ -104,14 +106,17 @@ class admin:
                                 logger.error(line)
                                 return render.admin(False, 0, 0, error="Unexpeccted reply from daemon" + line, locked=state.get("login_locked"), ended=state.get("ended"))
                 
-                    logger.info(f"ctf box user <{username}> with password <{password}> and flag <{flag}> created for players <{pair[0]}> and <{pair[1]}>")
+                logger.info(f"ctf box user <{username}> with password <{password}> and flag <{flag}> created for players <{pair[0]}> and <{pair[1]}>")
 
+                if not state.get("debug"):
                     generate_steganograph_image_pair(pair, pair_index, username, password)
-                    logger.info(f"clue images generated for players <{pair[0]}> and <{pair[1]}>")
+                logger.info(f"clue images generated for players <{pair[0]}> and <{pair[1]}>")
 
-                    pair_index += 1
+                pair_index += 1
 
-                
+            
+            if not state.get("debug"):
+
                 with open(inpipe, "w") as call:
                     call.write("end")
                     call.flush()

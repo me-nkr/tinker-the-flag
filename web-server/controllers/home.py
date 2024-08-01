@@ -57,7 +57,7 @@ class home:
         elif register_id is None:
             raise web.seeother("/") 
         
-        player_record = db.where("scoreboard", what="player_name", player_id=register_id).list()
+        player_record = db.where("scoreboard", what="player_name, banned", player_id=register_id).list()
 
         if len(player_record) < 1:
             if state.get("login_locked"):
@@ -67,6 +67,11 @@ class home:
             else:
                 db.insert("scoreboard", player_id=register_id, player_name=None, time=None, partner_id=None, flag=None, verified=False, banned=False)
                 logger.info(f"player <{register_id}> joined")
+        
+        if player_record[0].get("banned"):
+            error = "you are banned"
+            web.setcookie("register_id", None, expires=0)
+            return render.home(error, "new", state.get("started"), register_id=register_id)
 
         web.setcookie("register_id", register_id, httponly= True, samesite="Strict")
         

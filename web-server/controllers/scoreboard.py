@@ -16,15 +16,19 @@ class scoreboard:
                                 IIF(t2.banned, \
                                    t1.player_name, \
                             t1.player_name || ' and ' || t2.player_name)) AS team, \
-                            ((t1.time + t2.time)/2) AS time \
+                            IIF(t1.banned, \
+                                t2.time, \
+                                IIF(t2.banned, \
+                                   t1.time, \
+                            ((t1.time + t2.time)/2))) AS time \
                           FROM scoreboard t1 \
                           JOIN scoreboard t2 \
                           ON t1.player_id = t2.partner_id \
                           AND t1.partner_id = t2.player_id \
                           AND t1.player_id < t2.player_id \
                           AND (not t1.banned OR not t2.banned) \
-                          AND t1.time is not null \
-                          AND t2.time is not null \
+                          AND IIF(not t1.banned, t1.time is not null, True) \
+                          AND IIF(not t2.banned, t2.time is not null, True) \
                           ORDER BY (t1.time + t2.time)/2").list()
         scoreboard =  list(map(lambda score: dict(score), scores))
 
