@@ -38,7 +38,7 @@ while True:
                                    "/etc/skel/.bashrc", "/etc/skel/.bash_logout", "/etc/skel/.profile"])
 
                     with open("/home/lobby/.profile", "a") as profile:
-                        profile.write("\nclear\necho \-e \"\\n\\n\\nWelcome to the playground of Tinker The Flag, you are in the lobby\\n\\n\\n\"")
+                        profile.write("\nclear\necho -e \"\\n\\n\\nWelcome to the playground of Tinker The Flag, you are in the lobby\\n\\n\\n\"")
 
                     subprocess.run(["install",
                                    "-o", "gamemaster",
