@@ -52,4 +52,5 @@ Please check the `game.log` file for errors and stuff
 ## Test Observations
 - [ ] find pbm file viewer for windows
     - it's hard, the closest I can get is filehelper.com, but still with edge smoothening
+    - bitberry file opener does the job well
 - [ ] better clue, or a way for the clue to make sense
