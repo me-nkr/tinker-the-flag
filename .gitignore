@@ -167,3 +167,5 @@ env/
 *.db
 images/
 config.py
+*.pem
+*.pub

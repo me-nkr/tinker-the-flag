@@ -20,6 +20,8 @@ This is the pilot challenge created for ttf
 - [ ] install server dependencies
     - [ ] create venv (env/)
     - [ ] install reqirements in venv
+- [ ] generate ssl key pair
+    - `openssl req -x509 -newkey rsa:4098 -keyout privatekey.pem -out sslcert.pub -days 365 -noenc`
 - [ ] create config.py
     - create in root directory
     - structure
@@ -27,7 +29,9 @@ This is the pilot challenge created for ttf
     config = {
         "arena_password": "<arena_password>",
         "admin_username": "<admin_username>",
-        "admin_password": "<admin_password>"
+        "admin_password": "<admin_password>",
+        "ssl_private_key": "../privatekey.pem",
+        "ssl_cert": "../sslcert.out",
     }
     ```
 - [ ] run the game
@@ -38,20 +42,7 @@ This is the pilot challenge created for ttf
 
 Please check the `game.log` file for errors and stuff
 
-## Next steps
-- [ ] implement ban and it's sideeffects
-    - [ ] ban process
-        - as long as they don't violate T&C there is no ban
-            - that is if the player left with the blessing of the pair, there is no problem
-            - it is encouraged to report the players who leave the team in middle or do somthing not good at any time
-    - [ ] what happens when ban before start
-        - don't count users who got banned, even it out with user's who's not banned, or volunteers
-    - [ ] what happens when ban after start
-- [ ] setup a scoreboard
-    - [ ] should only show the people who completed the game, this eliminates the problem of incomplete participants getting the clue from here
-    - [ ] show pair names and time, but if someone is banned in between, show the standing player only
-    - [ ] if both players got banned they won't be shown
-- [ ] add https so others won't be able to intercept communication in between
+- [-] redirect http request to https
 - [ ] automate possible steps in the above list
     - [ ] create pipes in initgame script
     - [ ] reset database when initializing database, not needed just delete the database file

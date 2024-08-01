@@ -1,4 +1,7 @@
 import web, os, math, time
+from cheroot.server import HTTPServer
+from cheroot.ssl.builtin import BuiltinSSLAdapter
+
 from controllers.home import home
 from controllers.submit import submit
 from controllers.logout import logout
@@ -19,6 +22,18 @@ try:
 except ModuleNotFoundError:
     logger.error("missing config file")
     exit()
+    
+if not config.get("ssl_private_key") or not os.path.exists(config.get("ssl_private_key")):
+    logger.error("SSL private key missing or not configured")
+    exit()
+if not config.get("ssl_cert") or not os.path.exists(config.get("ssl_cert")):
+    logger.error("SSL cert missing or not configured")
+    exit()
+
+# SSL certificates
+HTTPServer.ssl_adapter = BuiltinSSLAdapter(
+        certificate=config.get("ssl_cert"),
+        private_key=config.get("ssl_private_key"))
 
 # Notes
 # error 0xf0 is clue file not found, check if the file exist
